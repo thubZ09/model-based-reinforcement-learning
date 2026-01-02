@@ -225,5 +225,81 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     buffer = ReplayBuffer(capacity=config.buffer_size)
 
+    episode_rewards = []
+    current_episode_reward = 0
+    best_eval_reward = 0
+
+    state, _ = env.reset()
+    start_time = time.time()
+
+    for step in range(config.total_steps):
+        if step < config.initial_random_steps:
+            action = env.action_space.sample()
+        else:
+            with torch.no_grad():
+                action = cem_planning(
+                    model=model,
+                    state=state,
+                    horizon=config.planning_horizon,
+                    iterations=config.cem_iterations,
+                    population=config.cem_population,
+                    elite_frac=config.cem_elite_frac,
+                    action_dim=action_dim,
+                    device=config.device
+                )
+        next_state, reward, terminated, truncated, _ = env.step(action)
+        done = terminated or truncated
+        buffer.push(state, action, reward, next_state, done)
+        current_episode_reward += reward
+
+        if done:
+            episode_rewards.append(current_episode_reward)
+            current_episode_reward = 0
+            state, _ = env.reset()
+        else:
+            state = next_state
+
+        if step > config.initial_random_steps and step % config.model_train_freq == 0:
+            loss = train_dynamics_model(
+                model=model,
+                buffer=buffer,
+                optimizer=optimizer,
+                config=config,
+                epochs=config.model_train_epochs
+            )
+            if step % config.print_freq == 0:
+                print(f"Step {step}: Model Loss = {loss:.4f}")
+
+        if step > 0 and step % config.eval_freq == 0:
+            eval_reward = evaluate_policy(model, config)
+
+            if eval_reward > best_eval_reward:
+                best_eval_reward = eval_reward
+            elapsed = time.time() - start_time
+            episodes_completed = len(episode_rewards)
+            print(f"Step: {step}/{config.total_steps}")
+            print(f"Episodes: {episodes_completed}")
+            print(f"Eval Reward: {eval_reward:.2f}")
+            print(f"Best Reward: {best_eval_reward:.2f}")
+            print(f"Time Elapsed: {elapsed/60:.1f} min")
+            if len(episode_rewards) > 0:
+                recent = episode_rewards[-10:]
+                print(f"Recent Training Rewards: {np.mean(recent):.2f} ± {np.std(recent):.2f}")
+    
+    env.close()
+    
+    print("\nTraining Complete!")
+    print(f"Final Eval Reward: {best_eval_reward:.2f}")
+    print(f"Total Time: {(time.time() - start_time)/60:.1f} minutes")
+    
+    if best_eval_reward >= 195:
+        print("CartPole solved!")
+    else:
+        print("Not quite solved, but good progress!")
+
+if __name__ == "__main__":
+    main()            
+
+
 
        
