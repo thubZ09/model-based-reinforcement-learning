@@ -1,0 +1,13 @@
+torch
+numpy
+gymnasium
+matplotlib
+seaborn
+imageio
+imageio-ffmpeg
+wandb
+tensorboard
+gymnasium[mujoco]
+pytest
+black
+flake8
