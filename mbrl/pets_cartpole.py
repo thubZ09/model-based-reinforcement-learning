@@ -51,7 +51,7 @@ class EnsembleDynamics(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_size, state_dim + 1)
         )
-    
+    #chkk
     def forward(self, state: torch.Tensor, action: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         if action.dim() == 1:
             action = F.one_hot(action.long(), num_classes=self.action_dim).float()
