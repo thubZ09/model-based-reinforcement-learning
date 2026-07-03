@@ -1,0 +1,26 @@
+[project]
+name = "cleanmbrl"
+version = "0.1.0"
+description = "single-file implementations of model based RL algorithms"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.5",
+    "gymnasium[mujoco,classic-control,box2d]>=1.0",
+    "mujoco>=3.2",
+    "numpy>=1.26,<2.0",
+    "wandb>=0.18",
+    "tyro>=0.8",
+    "tqdm>=4.66",
+    "moviepy>=1.0.3",
+    "imageio>=2.34",
+    "dm-control>=1.0.41",
+    "shimmy>=2.0.1",
+]
+
+[project.optional-dependencies]
+dmc = ["dm-control>=1.0.20", "shimmy>=1.3"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
