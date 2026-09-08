@@ -65,7 +65,6 @@ class EnsembleDynamics(nn.Module):
         rewards = predictions[..., -1:        
         next_states = state.unsqueeze(0) + delta_states
         return next_states, rewards
-    
     def sample(self, state: torch.Tensor, action: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         next_states, rewards = self.forward(state, action)        
         batch_size = state.shape[0]

@@ -15,6 +15,7 @@ dependencies = [
     "imageio>=2.34",
     "dm-control>=1.0.41",
     "shimmy>=2.0.1",
+    "matplotlib>=3.11.0",
 ]
 
 [project.optional-dependencies]
@@ -24,3 +25,14 @@ dev = ["pytest>=8.0", "ruff>=0.6"]
 [tool.ruff]
 line-length = 110
 target-version = "py312"
+exclude = [".venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
